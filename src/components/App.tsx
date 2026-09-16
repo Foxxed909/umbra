@@ -1,26 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Crosshair, FlaskConical, ChevronDown } from "lucide-react";
 import {
-  Archive,
-  Crosshair,
-  FlaskConical,
-  Settings,
-  ChevronDown,
-  Copy,
-} from "lucide-react";
-import { createLabEngagement, createReconEngagement, executeLabRun, executeReconRun } from "@/lib/engine";
-import { MODEL_CATALOG, MODEL_PACKS, PROVIDER_META, modelsFor } from "@/lib/models";
+  createLabEngagement,
+  createReconEngagement,
+  executeLabRun,
+  executeReconRun,
+} from "@/lib/engine";
+import { PROVIDER_META, modelsFor } from "@/lib/models";
 import { useUmbra } from "@/lib/store";
 import { allFindings } from "@/lib/summary";
-import {
-  DEPTHS,
-  type DepthId,
-  type Engagement,
-  type Finding,
-  type ProviderId,
-} from "@/lib/types";
-import { cn, formatAgo, hostOf } from "@/lib/utils";
+import { DEPTHS, type DepthId, type Finding, type ProviderId } from "@/lib/types";
+import { cn, formatAgo } from "@/lib/utils";
 
 type Tab = "scan" | "lab" | "archive" | "settings" | "run";
 
@@ -32,7 +24,6 @@ export default function App() {
   const setKey = useUmbra((s) => s.setKey);
   const runs = useUmbra((s) => s.runs);
   const upsertRun = useUmbra((s) => s.upsertRun);
-  const deleteRun = useUmbra((s) => s.deleteRun);
   const clearRuns = useUmbra((s) => s.clearRuns);
 
   const [tab, setTab] = useState<Tab>("scan");
@@ -65,15 +56,15 @@ export default function App() {
         agentCount: settings.agentCount,
         find1: settings.find1,
         provider: settings.defaultProvider,
+        model: settings.defaultModel,
         mixMode: settings.mixMode,
-        keys: settings.keys,
+        packId: settings.packId,
+        operatorBrief: settings.operatorBrief,
       });
       upsertRun(run);
       setActiveId(run.id);
       setTab("run");
-      await executeReconRun(run, {
-        onUpdate: (updated) => upsertRun(updated),
-      });
+      await executeReconRun(run.id);
     } catch (e) {
       console.error(e);
       alert(String(e));
@@ -86,17 +77,21 @@ export default function App() {
     if (!labAuth) return alert("Confirm lab authorization first.");
     setBusy(true);
     try {
+      const targetModel =
+        settings.defaultModel ||
+        models[0]?.id ||
+        "stealth/union-alpha";
       const run = createLabEngagement({
+        targetModel,
         provider: settings.defaultProvider,
-        keys: settings.keys,
-        models: models.slice(0, Math.min(settings.agentCount, models.length)),
+        agentCount: settings.agentCount,
+        find1: settings.find1,
+        operatorBrief: settings.operatorBrief,
       });
       upsertRun(run);
       setActiveId(run.id);
       setTab("run");
-      await executeLabRun(run, {
-        onUpdate: (updated) => upsertRun(updated),
-      });
+      await executeLabRun(run.id);
     } catch (e) {
       console.error(e);
       alert(String(e));
@@ -129,7 +124,7 @@ export default function App() {
                 onClick={() => setTab(t)}
                 className={cn(
                   "rounded-md px-3 py-1.5 text-xs font-medium uppercase tracking-wider",
-                  tab === t ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"
+                  tab === t ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {t}
@@ -215,9 +210,9 @@ export default function App() {
                 value={settings.defaultProvider}
                 onChange={(e) => patchSettings({ defaultProvider: e.target.value as ProviderId })}
               >
-                {Object.keys(PROVIDER_META).map((p) => (
+                {(Object.keys(PROVIDER_META) as ProviderId[]).map((p) => (
                   <option key={p} value={p}>
-                    {PROVIDER_META[p as ProviderId]?.label ?? p}
+                    {PROVIDER_META[p].label}
                   </option>
                 ))}
               </select>
@@ -233,6 +228,15 @@ export default function App() {
               />
             </label>
             <label className="block space-y-1">
+              <span className="text-xs uppercase tracking-widest text-muted-foreground">Default model</span>
+              <input
+                className="w-full max-w-md rounded-md border border-border bg-card px-3 py-2 font-mono text-sm"
+                value={settings.defaultModel}
+                onChange={(e) => patchSettings({ defaultModel: e.target.value })}
+                placeholder="stealth/union-alpha"
+              />
+            </label>
+            <label className="block space-y-1">
               <span className="text-xs uppercase tracking-widest text-muted-foreground">Agent count (1–128)</span>
               <input
                 type="number"
@@ -240,7 +244,9 @@ export default function App() {
                 max={128}
                 className="w-24 rounded-md border border-border bg-card px-3 py-2 text-sm"
                 value={settings.agentCount}
-                onChange={(e) => patchSettings({ agentCount: Math.min(128, Math.max(1, Number(e.target.value) || 1)) })}
+                onChange={(e) =>
+                  patchSettings({ agentCount: Math.min(128, Math.max(1, Number(e.target.value) || 1)) })
+                }
               />
             </label>
             <label className="flex items-center gap-2 text-sm">
@@ -296,10 +302,12 @@ export default function App() {
             </div>
             {active.summary && (
               <div className="rounded-md border border-border bg-card p-4 text-sm">
-                <p>Score: {active.summary.score} · Grade: {active.summary.grade}</p>
+                <p>
+                  Score: {active.summary.score} · Grade: {active.summary.grade}
+                </p>
                 <p className="mt-1 text-muted-foreground">
-                  Findings: {active.summary.findingCount} · Strongest: {active.summary.strongest} · Weakest:{" "}
-                  {active.summary.weakest}
+                  Findings: {active.summary.findingCount} · Strongest:{" "}
+                  {active.summary.strongest.join("; ")} · Weakest: {active.summary.weakest.join("; ")}
                 </p>
               </div>
             )}
@@ -308,7 +316,9 @@ export default function App() {
               {active.agents.map((a) => (
                 <div key={a.id} className="rounded-md border border-border px-3 py-2 text-sm">
                   <div className="flex justify-between">
-                    <span>{a.name || a.role}</span>
+                    <span>
+                      {a.codename} — {a.role}
+                    </span>
                     <span className="font-mono text-xs text-muted-foreground">{a.status}</span>
                   </div>
                   {a.findings?.length ? (
