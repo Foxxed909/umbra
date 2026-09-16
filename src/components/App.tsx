@@ -40,7 +40,7 @@ export default function App() {
   const active = runs.find((r) => r.id === activeId) ?? null;
 
   useEffect(() => {
-    void useUmbra.persist.rehydrate().finally(() => setHydrated(true));
+    void Promise.resolve(useUmbra.persist.rehydrate()).finally(() => setHydrated(true));
   }, [setHydrated]);
 
   const [target, setTarget] = useState("https://example.com");
