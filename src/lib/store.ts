@@ -81,7 +81,7 @@ export const useUmbra = create<UmbraState>()(
                 },
           ),
         })),
-      appendAgentMessage: (runId, msg) =>
+      appendAgentMessage: (runId, agentId, msg) =>
         set((s) => ({
           runs: s.runs.map((r) =>
             r.id !== runId
