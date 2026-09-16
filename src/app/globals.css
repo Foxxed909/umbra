@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --color-background: #09090b;
+  --color-foreground: #ecece8;
+  --color-card: #111114;
+  --color-muted: #18181c;
+  --color-muted-foreground: #8c8c86;
+  --color-border: rgb(236 236 232 / 0.12);
+  --color-primary: #e8e4dc;
+  --color-primary-foreground: #0c0c0e;
+  --color-live: #7d9a88;
+  --color-warn: #c4a574;
+  --color-crit: #c45c4a;
+  --color-rail: #0c0c0e;
+  --color-accent: #1c1c21;
+}
+
+html, body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  min-height: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+
+button:not(:disabled), [role="button"]:not(:disabled) { cursor: pointer; }
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+.live-dot { animation: pulse-dot 1.6s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .live-dot { animation: none; }
+}
