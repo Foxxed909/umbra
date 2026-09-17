@@ -1,5 +1,114 @@
-export const PROVIDERS = ["openrouter", "openai", "anthropic", "gemini", "xai"] as const;
+export const PROVIDERS = [
+  "openrouter",
+  "openai",
+  "anthropic",
+  "gemini",
+  "xai",
+  "mistral",
+  "deepseek",
+  "groq",
+  "together",
+  "fireworks",
+] as const;
+
 export type ProviderId = (typeof PROVIDERS)[number];
+
+export type AppMode = "chat" | "code" | "solo-agent" | "group-agent" | "labs";
+
+export type ReasoningLevel = "off" | "low" | "medium" | "high";
+
+export type MixMode = "unified" | "pack" | "custom";
+
+export interface ProviderKeys {
+  openrouter: string;
+  openai: string;
+  anthropic: string;
+  gemini: string;
+  xai: string;
+  mistral: string;
+  deepseek: string;
+  groq: string;
+  together: string;
+  fireworks: string;
+}
+
+export const EMPTY_KEYS: ProviderKeys = {
+  openrouter: "",
+  openai: "",
+  anthropic: "",
+  gemini: "",
+  xai: "",
+  mistral: "",
+  deepseek: "",
+  groq: "",
+  together: "",
+  fireworks: "",
+};
+
+export interface ChatMessage {
+  id: string;
+  role: "system" | "user" | "assistant" | "thought";
+  content: string;
+  ts: number;
+  model?: string;
+  reasoning?: string;
+}
+
+export interface Conversation {
+  id: string;
+  title: string;
+  projectId?: string;
+  mode: AppMode;
+  model: string;
+  provider: ProviderId;
+  messages: ChatMessage[];
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  description: string;
+  instructions: string;
+  conversationIds: string[];
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface ThemeSettings {
+  preset: "steel" | "obsidian" | "aurora" | "custom";
+  backgroundImage?: string;
+  backgroundOpacity: number;
+  glassIntensity: number;
+}
+
+export interface AppSettings {
+  keys: ProviderKeys;
+  keyPool: Partial<Record<ProviderId, string[]>>;
+  defaultProvider: ProviderId;
+  defaultModel: string;
+  reasoningLevel: ReasoningLevel;
+  contextTokens: number | "auto";
+  agentCount: number;
+  find1: boolean;
+  mixMode: MixMode;
+  packId: string;
+  waveSize: number;
+  theme: ThemeSettings;
+  operatorBrief: string;
+}
+
+export interface AgentSlot {
+  id: string;
+  model: string;
+  provider: ProviderId;
+  count: number;
+}
+
+export interface GroupComposition {
+  slots: AgentSlot[];
+}
 
 export const DEPTHS = [
   { id: "pulse", label: "Pulse", band: "Light", index: 0, probes: 4, js: 0, description: "Origin + headers." },
@@ -29,7 +138,6 @@ export type FindingCategory =
 export type AgentStatus = "queued" | "running" | "retrying" | "done" | "failed" | "skipped";
 export type RunKind = "recon" | "lab";
 export type RunStatus = "queued" | "recon" | "agents" | "done" | "failed";
-export type MixMode = "unified" | "pack";
 
 export interface Finding {
   id: string;
@@ -153,31 +261,3 @@ export interface Engagement {
   createdAt: number;
   updatedAt: number;
 }
-
-export interface ProviderKeys {
-  openrouter: string;
-  openai: string;
-  anthropic: string;
-  gemini: string;
-  xai: string;
-}
-
-export interface AppSettings {
-  keys: ProviderKeys;
-  defaultProvider: ProviderId;
-  defaultModel: string;
-  operatorBrief: string;
-  agentCount: number;
-  find1: boolean;
-  mixMode: MixMode;
-  packId: string;
-  waveSize: number;
-}
-
-export const EMPTY_KEYS: ProviderKeys = {
-  openrouter: "",
-  openai: "",
-  anthropic: "",
-  gemini: "",
-  xai: "",
-};
