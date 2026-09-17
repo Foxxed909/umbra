@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "UMBRA",
-  description: "Authorized black-box recon and model red-team console.",
+  description: "Glassy steel workspace — chat, agents, projects, and authorized labs.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

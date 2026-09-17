@@ -1,35 +1,39 @@
 # UMBRA
 
-Authorized black-box recon and model red-team console.
+Glassy steel AI workspace — chat, projects, agents, and authorized **Labs**.
 
-## Features
+## MVP (this build)
 
-- **1–128 agents** in parallel waves (configurable wave size)
-- **OpenRouter free pack**: Ling 3.0 Flash VL, Nemotron 3.5 Lightning, GLM 5.2, Nemotron 3 Ultra, Nex N2.5 Pro/Mini, Kimi/Qwen
-- **Group space** — agents post short shares while they work
-- **Reportable findings** — reproduction, impact, recommendation, residual-risk notes (plan gates, CAPTCHA residual risk)
-- **Live thread** — system, user, assistant, and thinking/reasoning messages
-- **Model lab (JB)** — leetspeak, code wrapper, roleplay, encoding, hierarchy, canary, confuse stack, schema trap
-- **Run summary** — score, grade, strongest, weakest
+- Multi-provider keys (OpenRouter, OpenAI, Anthropic, Gemini, xAI + more slots)
+- ChatGPT-style interface with reasoning levels
+- Model-aware context sizes
+- Projects (workspace + instructions)
+- Custom background (local image upload + steel/obsidian/aurora presets)
+- Modes: Chat · Code · Solo agent · Group agent · **Labs** (recon/JB shell next)
 
-## Quick start (tablet / Vercel)
-
-1. Open https://github.com/Foxxed909/umbra
-2. In Vercel dashboard → Add New → Project → Import Git Repository → select **Foxxed909/umbra**
-3. Framework preset: **Next.js** (auto)
-4. Deploy
-5. Open the deployment URL → go to **Keys** and paste your OpenRouter (or OpenAI/Anthropic/Gemini/xAI) key (stored in browser localStorage only)
-
-## Local
+## Setup
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Notes
+Open http://localhost:3000 → **Settings** → paste OpenRouter (or other) key.
 
-- Authorization checkbox required before scan/lab
-- FIND1 enforced: every agent must produce ≥1 evidence-backed finding
-- SSRF-hardened recon (private IP blocklist + DNS check)
-- No weaponized exploit generation; residual-risk notes only
+Keys stay in **browser localStorage** only.
+
+## Deploy
+
+```bash
+npx vercel
+```
+
+Or import this repo in the Vercel dashboard (Framework: Next.js).
+
+## Roadmap
+
+1. Labs full multi-agent recon + JB (FIND1, depth tiers, group space)
+2. Group agent composition (N× same model or custom mix)
+3. Connectors: GitHub → Vercel → Gmail
+4. Scheduled tasks
+5. Code mode tool loops
